@@ -9,8 +9,9 @@ import { LogoutOutlined } from '@ant-design/icons'
 import styled from 'styled-components'
 import { useSelector, useDispatch } from 'react-redux'
 import { ChangeRoute } from '../../redux/static'
-import { Link } from '@reach/router'
+import { Link, useNavigate } from '@reach/router'
 import menus from '../../menu'
+import Cookies from 'js-cookie'
 
 const { Header, Content, Sider, Footer } = Layout
 const { SubMenu } = Menu
@@ -30,18 +31,21 @@ const SpinBreadcrumb = styled.div`
   background: #fff;
   margin: 20px;
   border-radius: 5px;
-  box-shadow: 0 4px 20px 0 rgba(0,0,0,.09);
+  box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.09);
 `
 
 const Main = ({ children }) => {
-  const { route } = useSelector(state => state.router)
+  const navigate = useNavigate()
+  const { route } = useSelector((state) => state.router)
   const dispatch = useDispatch()
   const [title, setTitle] = useState('')
 
   useEffect(() => {
     menus.forEach(({ subs }, index) => {
       subs.forEach(({ path }, _index) => {
-        if (path === route) { setTitle(menus[index]?.subs[_index].name) }
+        if (path === route) {
+          setTitle(menus[index]?.subs[_index].name)
+        }
       })
     })
   }, [route])
@@ -50,47 +54,73 @@ const Main = ({ children }) => {
     dispatch({ type: ChangeRoute, payload: window.location.pathname })
   }, [])
 
+  if (!Cookies.get('token')) {
+    return window.location.replace('/login')
+  }
+
   return (
     <Layout>
-      <Header style={{ position: 'fixed', zIndex: 1, width: '100%', padding: '0 16px' }}>
+      <Header
+        style={{
+          position: 'fixed',
+          zIndex: 1,
+          width: '100%',
+          padding: '0 16px'
+        }}>
         <Container>
           <img style={{ margin: 'auto 0' }} src='https://cdn.duckbet.com/wl/?id=xqbypFvlgdQoAqjPt7qzvzM4noKzm0sk' alt='logo' />
-          <Button type='primary' style={{ margin: 'auto 0' }} icon={<LogoutOutlined />} size='large' danger />
+          <Button
+            type='primary'
+            style={{ margin: 'auto 0' }}
+            icon={<LogoutOutlined />}
+            size='large'
+            onClick={() => {
+              Cookies.remove('token')
+              navigate('/login')
+            }}
+            danger
+          />
         </Container>
       </Header>
       <Layout>
-        <Sider width={200} style={{ overflow: 'auto', height: '100vh', position: 'fixed', marginTop: 64 }} >
-          <Menu mode='inline' defaultSelectedKeys={[window.location.pathname]} defaultOpenKeys={menus.map(({ path }) => path)} style={{ height: '100%', borderRight: 0 }}>
-            {
-              menus.map(({ path, name, subs, Icon }) =>
-                <SubMenu key={path} icon={<Icon />} title={name}>
-                  {
-                    subs.map(({ path, name }) =>
-                      <Menu.Item key={path} onClick={() => dispatch({ type: ChangeRoute, payload: path })}>
-                        <Link to={path}>
-                          {name}
-                        </Link>
-                      </Menu.Item>
-                    )
-                  }
-                </SubMenu>
-              )
-            }
+        <Sider
+          width={200}
+          style={{
+            overflow: 'auto',
+            height: '100vh',
+            position: 'fixed',
+            marginTop: 64
+          }}>
+          <Menu
+            mode='inline'
+            defaultSelectedKeys={[window.location.pathname]}
+            defaultOpenKeys={menus.map(({ path }) => path)}
+            style={{ height: '100%', borderRight: 0 }}>
+            {menus.map(({ path, name, subs, Icon }) => (
+              <SubMenu key={path} icon={<Icon />} title={name}>
+                {subs.map(({ path, name }) => (
+                  <Menu.Item key={path} onClick={() => dispatch({ type: ChangeRoute, payload: path })}>
+                    <Link to={path}>{name}</Link>
+                  </Menu.Item>
+                ))}
+              </SubMenu>
+            ))}
           </Menu>
         </Sider>
-        <Layout style={{ padding: '0 24px 24px', margin: '64px 0 0 200px', minHeight: 'calc(100vh - 64px)' }}>
+        <Layout
+          style={{
+            padding: '0 24px 24px',
+            margin: '64px 0 0 200px',
+            minHeight: 'calc(100vh - 64px)'
+          }}>
           <SpinBreadcrumb>
             <Breadcrumb>
-              {
-                route.split('/').map((name, index) =>
-                  <Breadcrumb.Item key={index}>
-                    {name.charAt(0).toUpperCase() + name.slice(1)}
-                  </Breadcrumb.Item>
-                )
-              }
+              {route.split('/').map((name, index) => (
+                <Breadcrumb.Item key={index}>{name.charAt(0).toUpperCase() + name.slice(1)}</Breadcrumb.Item>
+              ))}
             </Breadcrumb>
           </SpinBreadcrumb>
-          <Content className='site-layout-background' style={{ padding: 24 }} >
+          <Content className='site-layout-background' style={{ padding: 24 }}>
             <Card title={title} bordered={false}>
               {children}
             </Card>

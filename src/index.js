@@ -16,7 +16,13 @@ import 'antd/lib/input/style/css'
 import 'antd/lib/checkbox/style/css'
 import 'antd/lib/list/style/css'
 import 'antd/lib/avatar/style/css'
+import 'antd/lib/input-number/style/css'
 import 'antd/lib/table/style/css'
+import 'antd/lib/popconfirm/style/css'
+import 'antd/lib/modal/style/css'
+import 'antd/lib/message/style/css'
+import 'antd/lib/switch/style/css'
+import 'antd/lib/tag/style/css'
 
 ReactDOM.render(
   <Provider store={store}>
@@ -24,8 +30,4 @@ ReactDOM.render(
   </Provider>,
   document.getElementById('root')
 )
-
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
 serviceWorker.unregister()

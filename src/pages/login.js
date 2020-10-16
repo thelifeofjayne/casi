@@ -2,9 +2,11 @@ import React from 'react'
 import Form from 'antd/lib/form'
 import Input from 'antd/lib/input'
 import Button from 'antd/lib/button'
-import Checkbox from 'antd/lib/checkbox'
 import Card from 'antd/lib/card'
 import styled from 'styled-components'
+import Axios from 'axios'
+import Cookies from 'js-cookie'
+import { useNavigate } from '@reach/router'
 
 const Container = styled.div`
   display: flex;
@@ -16,8 +18,14 @@ const Container = styled.div`
 `
 
 const Login = () => {
-  const onFinish = values => {
-    console.log(values)
+  const navigate = useNavigate()
+
+  const submit = async (data) => {
+    const res = await Axios.post('http://172.104.171.122:2041/auth/token', data)
+    if (res.data.token) {
+      Cookies.set('token', res.data.token, res.data.token, { expires: 8 })
+      navigate('/')
+    }
   }
 
   return (
@@ -26,20 +34,15 @@ const Login = () => {
         <Form
           name='basic'
           initialValues={{
-            remember: true,
             username: 'admin',
             password: '1234'
           }}
-          onFinish={onFinish}
-        >
-          <Form.Item label='Username' name='username' rules={[{ required: true, message: 'Please input your username!' }]} >
-            <Input />
+          onFinish={submit}>
+          <Form.Item label='Username' name='username' rules={[{ required: true, message: 'Please input your username!' }]}>
+            <input type='text' />
           </Form.Item>
-          <Form.Item label='Password' name='password' rules={[{ required: true, message: 'Please input your password!' }]} >
+          <Form.Item label='Password' name='password' rules={[{ required: true, message: 'Please input your password!' }]}>
             <Input.Password />
-          </Form.Item>
-          <Form.Item name='remember' valuePropName='checked'>
-            <Checkbox>Remember me</Checkbox>
           </Form.Item>
           <Form.Item style={{ margin: 0 }}>
             <Button type='primary' htmlType='submit'>
